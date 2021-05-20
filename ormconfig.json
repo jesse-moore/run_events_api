@@ -1,0 +1,12 @@
+{
+    "synchronize": true,
+    "logging": false,
+    "entities": ["src/mysql/entity/**/*.ts"],
+    "migrations": ["src/mysql/migration/**/*.ts"],
+    "subscribers": ["src/mysql/subscriber/**/*.ts"],
+    "cli": {
+        "entitiesDir": "src/mysql/entity",
+        "migrationsDir": "src/mysql/migration",
+        "subscribersDir": "src/mysql/subscriber"
+    }
+}
