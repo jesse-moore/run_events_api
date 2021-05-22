@@ -1,3 +1,11 @@
 {
-    "name": "Test Event"
+    "name": "Test Event",
+    "heroImg": "8PHBJLacbwNU_Lab3akMy.png",
+    "dateTime": "2022-01-01 12:00:00",
+    "utcOffset": 360,
+    "address": "test address",
+    "city": "test city",
+    "state": "test state",
+    "eventDetails": "test event details",
+    "slug": "test-event"
 }

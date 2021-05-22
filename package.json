@@ -3,13 +3,20 @@
     "version": "1.0.0",
     "description": "",
     "main": "server.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jesse-moore/run_events_api.git"
+    },
     "scripts": {
         "test": "mocha",
         "dev": "",
         "start": "NODE_ENV=production node build/server.js",
-        "server-watch": "nodemon build/server.js",
+        "server-watch": "nodemon build/src/server.js",
         "tsc-watch": "tsc --watch",
-        "codegen-watch": "graphql-codegen --config codegen.yml --watch"
+        "codegen": "graphql-codegen --config codegen.yml",
+        "codegen-watch": "graphql-codegen --config codegen.yml --watch",
+        "db-clear:dev": "NODE_ENV=development node build/seedDB/clearDB.js",
+        "db-seed:dev": "NODE_ENV=development node build/seedDB/seedDB.js"
     },
     "author": "",
     "license": "ISC",

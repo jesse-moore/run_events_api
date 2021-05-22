@@ -1,7 +1,9 @@
 if (process.env.NODE_ENV === 'production') {
     require('dotenv').config({ path: '.env.production' });
-} else {
+} else if (process.env.NODE_ENV === 'development') {
     require('dotenv').config({ path: '.env.local' });
+} else if (process.env.NODE_ENV === 'test') {
+    require('dotenv').config({ path: '.env.test.local' });
 }
 
 const config = {

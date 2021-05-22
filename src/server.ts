@@ -11,7 +11,6 @@ async function startApolloServer() {
     apolloServer.applyMiddleware({ app });
 
     app.listen({ port: config.SERVER_PORT });
-    // console.log(result)
     console.log(
         `🚀 Server ready at http://localhost:${config.SERVER_PORT}${apolloServer.graphqlPath}`
     );

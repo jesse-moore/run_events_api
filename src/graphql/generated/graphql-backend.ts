@@ -11,44 +11,42 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Date: any;
   /** The `Upload` scalar type represents a file upload. */
   Upload: any;
 };
 
+
 export type Event = {
   __typename?: 'Event';
+  id?: Maybe<Scalars['ID']>;
   name?: Maybe<Scalars['String']>;
-  heroImg?: Maybe<HeroImg>;
-  date?: Maybe<Scalars['String']>;
+  heroImg?: Maybe<Scalars['String']>;
+  dateTime?: Maybe<Scalars['Date']>;
   address?: Maybe<Scalars['String']>;
   city?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['String']>;
   time?: Maybe<Scalars['String']>;
   eventDetails?: Maybe<Scalars['String']>;
+  races?: Maybe<Array<Maybe<Race>>>;
 };
 
 export type EventInput = {
-  name?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
   heroImg?: Maybe<Scalars['Upload']>;
-  date?: Maybe<Scalars['String']>;
+  dateTime: Scalars['String'];
+  utcOffset?: Maybe<Scalars['Int']>;
   address?: Maybe<Scalars['String']>;
   city?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['String']>;
-  time?: Maybe<Scalars['String']>;
   eventDetails?: Maybe<Scalars['String']>;
-};
-
-export type HeroImg = {
-  __typename?: 'HeroImg';
-  src?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  size?: Maybe<Scalars['Int']>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createUser?: Maybe<Scalars['String']>;
+  createUser?: Maybe<User>;
   createEvent?: Maybe<Event>;
+  createRace?: Maybe<Race>;
   fileUpload?: Maybe<Scalars['String']>;
 };
 
@@ -58,21 +56,47 @@ export type MutationCreateEventArgs = {
 };
 
 
+export type MutationCreateRaceArgs = {
+  eventId?: Maybe<Scalars['String']>;
+  race?: Maybe<RaceInput>;
+};
+
+
 export type MutationFileUploadArgs = {
   file: Scalars['Upload'];
 };
 
 export type Query = {
   __typename?: 'Query';
-  user?: Maybe<User>;
   events: Array<Maybe<Event>>;
+  eventBySlug?: Maybe<Event>;
   userEvents: Array<Maybe<Event>>;
+};
+
+
+export type QueryEventBySlugArgs = {
+  slug: Scalars['String'];
+};
+
+export type Race = {
+  __typename?: 'Race';
+  type?: Maybe<Scalars['String']>;
+  dateTime?: Maybe<Scalars['Date']>;
+  distance?: Maybe<Scalars['Int']>;
+  route?: Maybe<Scalars['String']>;
+};
+
+export type RaceInput = {
+  type?: Maybe<Scalars['String']>;
+  dateTime?: Maybe<Scalars['Date']>;
+  distance?: Maybe<Scalars['Int']>;
+  route?: Maybe<Scalars['String']>;
 };
 
 
 export type User = {
   __typename?: 'User';
-  id: Scalars['ID'];
+  id?: Maybe<Scalars['ID']>;
   email: Scalars['String'];
 };
 
@@ -154,63 +178,75 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  Date: ResolverTypeWrapper<Scalars['Date']>;
   Event: ResolverTypeWrapper<Event>;
+  ID: ResolverTypeWrapper<Scalars['ID']>;
   String: ResolverTypeWrapper<Scalars['String']>;
   EventInput: EventInput;
-  HeroImg: ResolverTypeWrapper<HeroImg>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
+  Race: ResolverTypeWrapper<Race>;
+  RaceInput: RaceInput;
   Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<User>;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  Date: Scalars['Date'];
   Event: Event;
+  ID: Scalars['ID'];
   String: Scalars['String'];
   EventInput: EventInput;
-  HeroImg: HeroImg;
   Int: Scalars['Int'];
   Mutation: {};
   Query: {};
+  Race: Race;
+  RaceInput: RaceInput;
   Upload: Scalars['Upload'];
   User: User;
-  ID: Scalars['ID'];
   Boolean: Scalars['Boolean'];
 };
 
+export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
+  name: 'Date';
+}
+
 export type EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = {
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  heroImg?: Resolver<Maybe<ResolversTypes['HeroImg']>, ParentType, ContextType>;
-  date?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  heroImg?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  dateTime?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   address?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   time?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   eventDetails?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type HeroImgResolvers<ContextType = any, ParentType extends ResolversParentTypes['HeroImg'] = ResolversParentTypes['HeroImg']> = {
-  src?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  size?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  races?: Resolver<Maybe<Array<Maybe<ResolversTypes['Race']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createUser?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   createEvent?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'event'>>;
+  createRace?: Resolver<Maybe<ResolversTypes['Race']>, ParentType, ContextType, RequireFields<MutationCreateRaceArgs, never>>;
   fileUpload?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationFileUploadArgs, 'file'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   events?: Resolver<Array<Maybe<ResolversTypes['Event']>>, ParentType, ContextType>;
+  eventBySlug?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<QueryEventBySlugArgs, 'slug'>>;
   userEvents?: Resolver<Array<Maybe<ResolversTypes['Event']>>, ParentType, ContextType>;
+};
+
+export type RaceResolvers<ContextType = any, ParentType extends ResolversParentTypes['Race'] = ResolversParentTypes['Race']> = {
+  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  dateTime?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  distance?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  route?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Upload'], any> {
@@ -218,16 +254,17 @@ export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 }
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
+  Date?: GraphQLScalarType;
   Event?: EventResolvers<ContextType>;
-  HeroImg?: HeroImgResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Race?: RaceResolvers<ContextType>;
   Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
 };

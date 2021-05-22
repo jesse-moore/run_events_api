@@ -1,5 +1,5 @@
-import { expect, should } from 'chai';
-import { User } from './User';
+import { expect } from 'chai';
+import { User } from './';
 import user from '../../../test/user.json';
 
 describe('User Model', function () {

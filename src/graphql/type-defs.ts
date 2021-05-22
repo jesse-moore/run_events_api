@@ -1,50 +1,61 @@
-import { gql } from 'apollo-server'
+import { gql } from 'apollo-server';
 
 export const typeDefs = gql`
     scalar Upload
+    scalar Date
 
     type User {
-        id: ID!
+        id: ID
         email: String!
     }
 
     type Event {
+        id: ID
         name: String
-        heroImg: HeroImg
-        date: String
+        heroImg: String
+        dateTime: Date
         address: String
         city: String
         state: String
-        time: String
         eventDetails: String
-    }
-
-    type HeroImg {
-        src: String
-        name: String
-        size: Int
+        races: [Race]
     }
 
     input EventInput {
-        name: String 
+        name: String!
         heroImg: Upload
-        date: String
+        dateTime: String!
+        utcOffset: Int
         address: String
         city: String
         state: String
-        time: String
         eventDetails: String
     }
 
+    type Race {
+        type: String
+        dateTime: Date
+        distance: Int
+        route: String
+    }
+
+    input RaceInput {
+        type: String
+        dateTime: Date
+        distance: Int
+        route: String
+    }
+
     type Query {
-        user: User
         events: [Event]!
+        eventBySlug(slug: String!): Event
         userEvents: [Event]!
     }
 
     type Mutation {
-        createUser: String
+        createUser: User
         createEvent(event: EventInput!): Event
+        createRace(eventId: String, race: RaceInput): Race
         fileUpload(file: Upload!): String
     }
-`
+`;

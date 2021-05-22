@@ -1,7 +1,6 @@
 import { Connection, getConnectionManager } from 'typeorm';
 import { config } from '../config';
-import { User } from './entity/User';
-import { Event } from './entity/Event';
+import { Event, Race, User } from './entity/';
 
 const options = {
     type: 'mysql',
@@ -10,7 +9,7 @@ const options = {
     username: config.DB_USERNAME,
     password: config.DB_PASSWORD,
     database: config.DB_DATABASE,
-    entities: [User, Event],
+    entities: [User, Event, Race],
     synchronize: true,
     logging: ['error'],
 };
@@ -54,7 +53,7 @@ export async function getConnection(name = 'default'): Promise<Connection> {
         }
 
         if (process.env.NODE_ENV !== 'production') {
-            await updateConnectionEntities(connection, [User, Event]);
+            await updateConnectionEntities(connection, [User, Event, Race]);
         }
 
         return connection;

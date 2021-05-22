@@ -1,9 +1,16 @@
-import { ApolloError, AuthenticationError } from 'apollo-server-errors';
-import { FileUpload, GraphQLUpload } from 'graphql-upload';
+import { UserInputError, AuthenticationError } from 'apollo-server-errors';
+import { GraphQLUpload } from 'graphql-upload';
 import { QueryResolvers, MutationResolvers } from './generated/graphql-backend';
 import { writeToS3 } from '../aws-s3';
-import { getUser } from '../mysql/queries';
-// import { createUser, getUser } from '../mysql/queries';
+import {
+    createUser,
+    getEvents,
+    getEventWithRacesBySlug,
+    getUsersEventsWithRaces,
+} from '../mysql/queries';
+import { createEvent } from '../connector/createEvent';
+import { ClaimVerifyResult } from '../cognito/validateJWT';
+import { User, Event } from '../mysql/entity';
 
 const userProfile = {
     id: String(1),
@@ -11,49 +18,62 @@ const userProfile = {
 };
 
 const Query: QueryResolvers = {
-    user: async (_parent, _args, _context, _info) => {
-        // console.log(_context)
-        // console.log(_args)
-        // const result = await getUser()
-        const user = await getUser();
-        // console.log(process.env.DB_DATABASE)
-        // const user = userProfile;
-        return user;
+    userEvents: async (
+        _parent,
+        _args,
+        context: { user: ClaimVerifyResult },
+        _info
+    ) => {
+        const { user } = context;
+        if (!user.isValid) throw new AuthenticationError('Invaild user');
+        const events = await getUsersEventsWithRaces(user.userName);
+        return events;
     },
-    userEvents: async (_parent, _args, _context, _info) => {
-        // console.log(_context);
-        return [];
+    events: async (_parent, _args, _context, _info) => {
+        const events = await getEvents();
+        return events;
+    },
+    eventBySlug: async (_parent, args, _context, _info) => {
+        const event = await getEventWithRacesBySlug(args.slug);
+        if (!event) return null;
+        return event;
     },
 };
 
 const Mutation: MutationResolvers = {
-    createUser(_parent, _args, context, _info) {
+    createUser: async (
+        _parent,
+        _args,
+        context: { user: ClaimVerifyResult },
+        _info
+    ) => {
         const { user } = context;
         if (!user.isValid) throw new AuthenticationError('Invaild user');
-        const { email, userName }: { email: string; userName: string } = user;
-        // const newUserEmail = createUser(email, userName);
-        // return newUserEmail;
-        return null;
-    },
-    createEvent: async (_parent, args, context, _info) => {
-        const { user } = context;
-        if (!user.isValid) throw new AuthenticationError('Invaild user');
-        const { userName }: { userName: string } = user;
-        const { event } = args;
-        if (event) {
-            const heroImg: Promise<FileUpload> = event.heroImg;
-            if (heroImg) {
-                // const { createReadStream, mimetype, filename } = await heroImg;
-                // const fileStream = createReadStream();
-                // const data = await writeToS3({
-                //     fileStream,
-                //     mimetype,
-                //     filename,
-                // });
-                // console.log(data);
-            }
+        const { email, userName } = user;
+        const newUser = await createUser({ email, id: userName });
+        if (newUser instanceof User) {
+            const { email } = newUser;
+            return { email };
         }
-        return null;
+        throw new UserInputError(JSON.stringify(newUser.errors));
+    },
+    createEvent: async (
+        _parent,
+        args,
+        context: { user: ClaimVerifyResult },
+        _info
+    ) => {
+        console.log('CREATE EVENT');
+        const { user } = context;
+        if (!user.isValid) throw new AuthenticationError('Invaild user');
+        const { userName } = user;
+        const { event } = args;
+        const newEvent = await createEvent({ userName, event });
+        if (newEvent instanceof Event) {
+            const { user, createdAt, updatedAt, ...rest } = newEvent;
+            return rest;
+        }
+        throw new UserInputError(JSON.stringify(newEvent.errors));
     },
 };
 

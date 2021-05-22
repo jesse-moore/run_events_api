@@ -1,59 +1,97 @@
+import { validate, ValidationError } from 'class-validator';
 import { getConnection } from './index';
-import { User } from './entity/User';
-import { Event } from './entity/Event';
+import { Event, User, Model, Race } from './entity';
+import {
+    EventInput,
+    EventInterface,
+    ModelValidationErrors,
+    RaceInterface,
+    UserInterface,
+} from '../types';
+import { uuid } from 'aws-sdk/clients/customerprofiles';
 
-export const getUser = async () => {
-    const connection = await getConnection();
-    const userRepo = connection.getRepository(User);
-    // const eventRepo = connection.getRepository(Event);
-    const user = await userRepo.findOne('6f5066b8-b18f-4c17-8d99-1942783fabd9');
-    // if (user) {
-    //     const newEvent = Event.create({
-    //         name: 'Event 2',
-    //         slug: 'event-2',
-    //         user,
-    //     });
-    //     await newEvent.save();
-    // }
-    // const newUser = new User('test3@example.com');
-    // const user = await newUser.save();
-    // await connection.manager.save(user);
-    // console.log('STATUS: ' + db.isConnected);
-    // console.log(newUser);
-    const events = await Event.find({
-        where: { user: '6f5066b8-b18f-4c17-8d99-1942783fabd9' },
-    });
-    // console.log(events);
-    return user || null;
-    // const res = await UserModel.findOne({ where: { id: '1' } });
-    // const user = res ? res : null;
-    // return user;
+const getUserByID = async (id: string) => {
+    return await User.findOne({ where: { id } });
 };
 
 export const createUser = async (
-    email: string,
-    id: string
-): Promise<string> => {
+    user: UserInterface
+): Promise<User | { errors: ModelValidationErrors }> => {
     await getConnection();
-    const newUser = new User(email, id);
+    const newUser = new User(user.email, user.id);
+    const errors = await validateModel(newUser);
+    if (errors) return { errors };
     const res = await newUser.save();
-    return res.email;
+    return res;
 };
 
-// createConnection().then(async connection => {
+export const createEvent = async (
+    event: EventInput,
+    user: User | string
+): Promise<Event | { errors: ModelValidationErrors }> => {
+    await getConnection();
+    let newEvent: Event;
+    if (user instanceof User) {
+        newEvent = new Event({ ...event, user });
+    } else {
+        const eventUser = await getUserByID(user);
+        newEvent = new Event({ ...event, user: eventUser });
+    }
+    const errors = await validateModel(newEvent);
+    if (errors) return { errors };
+    const res = await newEvent.save();
+    return res;
+};
 
-//     console.log("Inserting a new user into the database...");
-//     const user = new User();
-//     user.firstName = "Timber";
-//     user.lastName = "Saw";
-//     user.age = 25;
-//     await connection.manager.save(user);
-//     console.log("Saved a new user with id: " + user.id);
+export const createRace = async (
+    race: RaceInterface
+): Promise<Race | { errors: ModelValidationErrors }> => {
+    await getConnection();
+    const newEvent = new Race(race);
+    const errors = await validateModel(newEvent);
+    if (errors) return { errors };
+    const res = await newEvent.save();
+    return res;
+};
 
-//     console.log("Loading users from the database...");
-//     const users = await connection.manager.find(User);
-//     console.log("Loaded users: ", users);
+export const getEvents = async (): Promise<Event[]> => {
+    await getConnection();
+    const events = Event.find();
+    return events;
+};
 
-//     console.log("Here you can setup and run express/koa/any other framework.");
+export const getUsersEvents = async (id: uuid): Promise<Event[]> => {
+    await getConnection();
+    const events = await Event.find({ where: { user: id } });
+    return events;
+};
 
-// }).catch(error => console.log(error));
+export const getUsersEventsWithRaces = async (id: uuid): Promise<Event[]> => {
+    await getConnection();
+    const events = await Event.find({
+        relations: ['races'],
+        where: { user: id },
+    });
+    return events;
+};
+
+export const getEventWithRacesBySlug = async (slug: string) => {
+    await getConnection();
+    const event = await Event.findOne({
+        relations: ['races'],
+        where: { slug },
+    });
+    return event;
+};
+
+const validateModel = async (
+    model: Model
+): Promise<ModelValidationErrors | null> => {
+    const errors: ModelValidationErrors = {};
+    const validations = await validate(model);
+    if (!validations.length) return null;
+    validations.forEach((error) => {
+        errors[error.property] = { ...error.constraints };
+    });
+    return errors;
+};
