@@ -9,7 +9,7 @@
     },
     "scripts": {
         "test": "mocha",
-        "dev": "",
+        "dev": "tsc",
         "start": "NODE_ENV=production node build/src/server.js",
         "server-watch": "nodemon build/src/server.js",
         "tsc-watch": "tsc --watch",

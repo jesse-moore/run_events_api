@@ -44,28 +44,27 @@ async function updateConnectionEntities(
 }
 
 export async function getConnection(name = 'default'): Promise<Connection> {
-    const connectionManager = getConnectionManager();
-
+	const connectionManager = getConnectionManager();
+	
     if (connectionManager.has(name)) {
-        const connection = connectionManager.get(name);
-
+		const connection = connectionManager.get(name);
+		
         if (!connection.isConnected) {
-            await connection.connect();
-			console.log(connection)
+			await connection.connect();
         }
-
+		
         if (process.env.NODE_ENV !== 'production') {
-            await updateConnectionEntities(connection, [
-                User,
+			await updateConnectionEntities(connection, [
+				User,
                 Event,
                 Race,
                 Route,
             ]);
         }
-
+		
         return connection;
     }
-
+	
     // @ts-ignore
     return await connectionManager.create({ name, ...options }).connect();
 }
