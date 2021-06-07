@@ -1,3 +1,4 @@
+import { Feature, FeatureCollection, LineString, Point } from 'geojson';
 import { FileUpload } from 'graphql-upload';
 import { User, Event } from '../mysql/entity';
 
@@ -5,7 +6,6 @@ export interface EventInput {
     name: string;
     heroImg: string;
     dateTime: Date;
-    utcOffset?: number | null;
     address?: string | null;
     city?: string | null;
     state?: string | null;
@@ -16,20 +16,36 @@ export interface EventInterface {
     name: string;
     heroImg: string;
     dateTime: Date;
-    utcOffset: number;
     address: string;
     city: string;
     state: string;
     eventDetails: string;
 }
 
-export interface RaceInterface {
-    type: string;
-    distance: number;
+export interface EventDetails {
+    name: string;
     dateTime: Date;
-    event: Event;
-    user: User;
+    address: string;
+    city: string;
+    state: string;
+    id: string;
 }
+
+export interface Race extends RaceDetails {
+    route: Route;
+}
+
+export type Route = {
+    points: FeatureCollection<Point>;
+    route: FeatureCollection<LineString>;
+    routeStartMarker?: Feature<Point>;
+    routeEndMarker?: Feature<Point>;
+};
+
+export type RaceDetails = {
+    name: string;
+    distance: number;
+};
 
 export interface UserDataInterface {
     email: string;

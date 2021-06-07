@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 import {
     IsString,
     IsDate,
@@ -8,25 +8,23 @@ import {
     IsDefined,
 } from 'class-validator';
 import { Event, Model, User } from './';
+import { Route } from './Route';
 
 @Entity()
 export class Race extends Model {
     @IsString({ message: 'Event must have a name' })
     @Length(1, 20, { message: 'Race type cannot be over 20 characters long' })
     @Column({ type: 'varchar', length: '20' })
-    type!: string;
-
-    @IsDate()
-    @Column({ type: 'datetime' })
-    dateTime!: Date;
+    name!: string;
 
     @Min(0)
     @IsInt()
     @Column({ type: 'mediumint' })
     distance!: number;
 
-    @Column('varchar', { default: '' })
-    route: string | undefined;
+    @OneToOne((_type) => Route, { cascade: true, eager: true })
+    @JoinColumn()
+    route!: Route;
 
     @IsDefined()
     @ManyToOne((_type) => Event, (event) => event.races)

@@ -1,5 +1,24 @@
 {
     "type": "10k",
     "distance": 10000,
-    "dateTime": "2022-01-01 12:00:00"
+    "dateTime": "2022-01-01 12:00:00",
+    "route": {
+        "points": {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-94.11984742305222, 36.18816338537101]
+                    },
+                    "properties": {
+                        "id": "n_RAcVBK8EYWOIaNc4dHd",
+                        "type": "Aid Station",
+                        "amenities": ""
+                    }
+                }
+            ]
+        }
+    }
 }

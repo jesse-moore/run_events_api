@@ -4,6 +4,7 @@ import { ReadStream } from 'fs';
 import path from 'path';
 import { nanoid } from 'nanoid';
 import { config } from '../config';
+import { FileUpload } from 'graphql-upload';
 
 interface WriteToS3 {
     fileStream: ReadStream;
@@ -37,4 +38,21 @@ export const writeToS3 = async ({
         console.log('Error', err);
         return null;
     }
+};
+
+export const uploadImage = async (
+    image: Promise<FileUpload>
+): Promise<string | null> => {
+    if (!image || !(image instanceof Promise)) return '';
+    const imageFile: FileUpload = await image;
+
+    if (!imageFile.createReadStream) return '';
+    const { createReadStream, filename, mimetype } = imageFile;
+    const fileStream = createReadStream();
+    const data = await writeToS3({
+        fileStream,
+        mimetype,
+        filename,
+    });
+    return data ? data.filename : null;
 };

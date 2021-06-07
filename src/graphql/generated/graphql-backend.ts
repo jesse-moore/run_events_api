@@ -12,6 +12,8 @@ export type Scalars = {
   Int: number;
   Float: number;
   Date: any;
+  FeatureCollectionObject: any;
+  FeatureObject: any;
   /** The `Upload` scalar type represents a file upload. */
   Upload: any;
 };
@@ -19,35 +21,50 @@ export type Scalars = {
 
 export type Event = {
   __typename?: 'Event';
-  id?: Maybe<Scalars['ID']>;
-  name?: Maybe<Scalars['String']>;
-  heroImg?: Maybe<Scalars['String']>;
-  dateTime?: Maybe<Scalars['Date']>;
-  address?: Maybe<Scalars['String']>;
-  city?: Maybe<Scalars['String']>;
-  state?: Maybe<Scalars['String']>;
-  time?: Maybe<Scalars['String']>;
-  eventDetails?: Maybe<Scalars['String']>;
-  races?: Maybe<Array<Maybe<Race>>>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  heroImg: Scalars['String'];
+  dateTime: Scalars['Date'];
+  address: Scalars['String'];
+  city: Scalars['String'];
+  state: Scalars['String'];
+  eventDetails: Scalars['String'];
+  races: Array<Race>;
+};
+
+export type EventDetailsInput = {
+  id: Scalars['String'];
+  name: Scalars['String'];
+  dateTime: Scalars['Date'];
+  address: Scalars['String'];
+  city: Scalars['String'];
+  state: Scalars['String'];
 };
 
 export type EventInput = {
   name: Scalars['String'];
   heroImg?: Maybe<Scalars['Upload']>;
   dateTime: Scalars['String'];
-  utcOffset?: Maybe<Scalars['Int']>;
   address?: Maybe<Scalars['String']>;
   city?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['String']>;
   eventDetails?: Maybe<Scalars['String']>;
 };
 
+
+
 export type Mutation = {
   __typename?: 'Mutation';
   createUser?: Maybe<User>;
   createEvent?: Maybe<Event>;
   createRace?: Maybe<Race>;
+  deleteEvent?: Maybe<Scalars['String']>;
+  deleteRace?: Maybe<Scalars['String']>;
+  updateRace?: Maybe<Race>;
   fileUpload?: Maybe<Scalars['String']>;
+  saveHeroImg?: Maybe<Event>;
+  saveEventDetails?: Maybe<Event>;
+  saveEventDescription?: Maybe<Event>;
 };
 
 
@@ -57,8 +74,24 @@ export type MutationCreateEventArgs = {
 
 
 export type MutationCreateRaceArgs = {
-  eventId?: Maybe<Scalars['String']>;
-  race?: Maybe<RaceInput>;
+  eventId: Scalars['String'];
+  race: RaceInput;
+};
+
+
+export type MutationDeleteEventArgs = {
+  eventId: Scalars['String'];
+};
+
+
+export type MutationDeleteRaceArgs = {
+  raceId: Scalars['String'];
+};
+
+
+export type MutationUpdateRaceArgs = {
+  raceId: Scalars['String'];
+  raceUpdates: UpdateRaceInput;
 };
 
 
@@ -66,11 +99,30 @@ export type MutationFileUploadArgs = {
   file: Scalars['Upload'];
 };
 
+
+export type MutationSaveHeroImgArgs = {
+  file: Scalars['Upload'];
+  id: Scalars['String'];
+};
+
+
+export type MutationSaveEventDetailsArgs = {
+  eventDetails: EventDetailsInput;
+};
+
+
+export type MutationSaveEventDescriptionArgs = {
+  eventDescription: Scalars['String'];
+  id: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   events: Array<Maybe<Event>>;
   eventBySlug?: Maybe<Event>;
   userEvents: Array<Maybe<Event>>;
+  userEventByID?: Maybe<Event>;
+  userRaceByID?: Maybe<Race>;
 };
 
 
@@ -78,19 +130,57 @@ export type QueryEventBySlugArgs = {
   slug: Scalars['String'];
 };
 
+
+export type QueryUserEventByIdArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueryUserRaceByIdArgs = {
+  id: Scalars['String'];
+};
+
 export type Race = {
   __typename?: 'Race';
-  type?: Maybe<Scalars['String']>;
-  dateTime?: Maybe<Scalars['Date']>;
-  distance?: Maybe<Scalars['Int']>;
-  route?: Maybe<Scalars['String']>;
+  id: Scalars['String'];
+  name: Scalars['String'];
+  distance: Scalars['Int'];
+  route: Route;
+  event: Event;
 };
 
 export type RaceInput = {
-  type?: Maybe<Scalars['String']>;
-  dateTime?: Maybe<Scalars['Date']>;
+  name: Scalars['String'];
+  distance: Scalars['Int'];
+  route: RouteInput;
+};
+
+export type Route = {
+  __typename?: 'Route';
+  points: Scalars['FeatureCollectionObject'];
+  route: Scalars['FeatureCollectionObject'];
+  routeStartMarker?: Maybe<Scalars['FeatureObject']>;
+  routeEndMarker?: Maybe<Scalars['FeatureObject']>;
+};
+
+export type RouteInput = {
+  points: Scalars['FeatureCollectionObject'];
+  route: Scalars['FeatureCollectionObject'];
+  routeStartMarker?: Maybe<Scalars['FeatureObject']>;
+  routeEndMarker?: Maybe<Scalars['FeatureObject']>;
+};
+
+export type UpdateRaceInput = {
+  name?: Maybe<Scalars['String']>;
   distance?: Maybe<Scalars['Int']>;
-  route?: Maybe<Scalars['String']>;
+  route?: Maybe<UpdateRouteInput>;
+};
+
+export type UpdateRouteInput = {
+  points?: Maybe<Scalars['FeatureCollectionObject']>;
+  route?: Maybe<Scalars['FeatureCollectionObject']>;
+  routeStartMarker?: Maybe<Scalars['FeatureObject']>;
+  routeEndMarker?: Maybe<Scalars['FeatureObject']>;
 };
 
 
@@ -182,12 +272,19 @@ export type ResolversTypes = {
   Event: ResolverTypeWrapper<Event>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   String: ResolverTypeWrapper<Scalars['String']>;
+  EventDetailsInput: EventDetailsInput;
   EventInput: EventInput;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
+  FeatureCollectionObject: ResolverTypeWrapper<Scalars['FeatureCollectionObject']>;
+  FeatureObject: ResolverTypeWrapper<Scalars['FeatureObject']>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   Race: ResolverTypeWrapper<Race>;
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   RaceInput: RaceInput;
+  Route: ResolverTypeWrapper<Route>;
+  RouteInput: RouteInput;
+  UpdateRaceInput: UpdateRaceInput;
+  UpdateRouteInput: UpdateRouteInput;
   Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<User>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
@@ -199,12 +296,19 @@ export type ResolversParentTypes = {
   Event: Event;
   ID: Scalars['ID'];
   String: Scalars['String'];
+  EventDetailsInput: EventDetailsInput;
   EventInput: EventInput;
-  Int: Scalars['Int'];
+  FeatureCollectionObject: Scalars['FeatureCollectionObject'];
+  FeatureObject: Scalars['FeatureObject'];
   Mutation: {};
   Query: {};
   Race: Race;
+  Int: Scalars['Int'];
   RaceInput: RaceInput;
+  Route: Route;
+  RouteInput: RouteInput;
+  UpdateRaceInput: UpdateRaceInput;
+  UpdateRouteInput: UpdateRouteInput;
   Upload: Scalars['Upload'];
   User: User;
   Boolean: Scalars['Boolean'];
@@ -215,37 +319,61 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 }
 
 export type EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = {
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  heroImg?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  dateTime?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  address?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  time?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  eventDetails?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  races?: Resolver<Maybe<Array<Maybe<ResolversTypes['Race']>>>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heroImg?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dateTime?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  eventDetails?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  races?: Resolver<Array<ResolversTypes['Race']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface FeatureCollectionObjectScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['FeatureCollectionObject'], any> {
+  name: 'FeatureCollectionObject';
+}
+
+export interface FeatureObjectScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['FeatureObject'], any> {
+  name: 'FeatureObject';
+}
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   createEvent?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'event'>>;
-  createRace?: Resolver<Maybe<ResolversTypes['Race']>, ParentType, ContextType, RequireFields<MutationCreateRaceArgs, never>>;
+  createRace?: Resolver<Maybe<ResolversTypes['Race']>, ParentType, ContextType, RequireFields<MutationCreateRaceArgs, 'eventId' | 'race'>>;
+  deleteEvent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'eventId'>>;
+  deleteRace?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteRaceArgs, 'raceId'>>;
+  updateRace?: Resolver<Maybe<ResolversTypes['Race']>, ParentType, ContextType, RequireFields<MutationUpdateRaceArgs, 'raceId' | 'raceUpdates'>>;
   fileUpload?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationFileUploadArgs, 'file'>>;
+  saveHeroImg?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<MutationSaveHeroImgArgs, 'file' | 'id'>>;
+  saveEventDetails?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<MutationSaveEventDetailsArgs, 'eventDetails'>>;
+  saveEventDescription?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<MutationSaveEventDescriptionArgs, 'eventDescription' | 'id'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   events?: Resolver<Array<Maybe<ResolversTypes['Event']>>, ParentType, ContextType>;
   eventBySlug?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<QueryEventBySlugArgs, 'slug'>>;
   userEvents?: Resolver<Array<Maybe<ResolversTypes['Event']>>, ParentType, ContextType>;
+  userEventByID?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<QueryUserEventByIdArgs, 'id'>>;
+  userRaceByID?: Resolver<Maybe<ResolversTypes['Race']>, ParentType, ContextType, RequireFields<QueryUserRaceByIdArgs, 'id'>>;
 };
 
 export type RaceResolvers<ContextType = any, ParentType extends ResolversParentTypes['Race'] = ResolversParentTypes['Race']> = {
-  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  dateTime?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  distance?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  route?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  distance?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  route?: Resolver<ResolversTypes['Route'], ParentType, ContextType>;
+  event?: Resolver<ResolversTypes['Event'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RouteResolvers<ContextType = any, ParentType extends ResolversParentTypes['Route'] = ResolversParentTypes['Route']> = {
+  points?: Resolver<ResolversTypes['FeatureCollectionObject'], ParentType, ContextType>;
+  route?: Resolver<ResolversTypes['FeatureCollectionObject'], ParentType, ContextType>;
+  routeStartMarker?: Resolver<Maybe<ResolversTypes['FeatureObject']>, ParentType, ContextType>;
+  routeEndMarker?: Resolver<Maybe<ResolversTypes['FeatureObject']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -262,9 +390,12 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 export type Resolvers<ContextType = any> = {
   Date?: GraphQLScalarType;
   Event?: EventResolvers<ContextType>;
+  FeatureCollectionObject?: GraphQLScalarType;
+  FeatureObject?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Race?: RaceResolvers<ContextType>;
+  Route?: RouteResolvers<ContextType>;
   Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
 };

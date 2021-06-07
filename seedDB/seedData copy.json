@@ -1,0 +1,94 @@
+{
+    "data": [
+        {
+            "user": {
+                "email": "test@example.com",
+                "id": "66abccc2-1860-4ece-8f03-08e123b230b6"
+            },
+            "event": {
+                "name": "Test Event",
+                "heroImg": "8PHBJLacbwNU_Lab3akMy.png",
+                "dateTime": "2022-01-01 12:00:00",
+                "utcOffset": 360,
+                "address": "test address",
+                "city": "test city",
+                "state": "test state",
+                "eventDetails": "test event details",
+                "slug": "test-event"
+            },
+            "races": [
+                {
+                    "type": "10k",
+                    "distance": 10000,
+                    "dateTime": "2022-01-01 12:00:00",
+                    "route": {
+                        "points": {
+                            "type": "FeatureCollection",
+                            "features": [
+                                {
+                                    "type": "Feature",
+                                    "geometry": {
+                                        "type": "Point",
+                                        "coordinates": [
+                                            -94.11984742305222,
+                                            36.18816338537101
+                                        ]
+                                    },
+                                    "properties": {
+                                        "id": "n_RAcVBK8EYWOIaNc4dHd",
+                                        "type": "Aid Station",
+                                        "amenities": ""
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "5k",
+                    "distance": 5000,
+                    "dateTime": "2022-01-01 12:00:00"
+                },
+                {
+                    "type": "Half Marathon",
+                    "distance": 21100,
+                    "dateTime": "2022-01-01 12:00:00"
+                }
+            ]
+        },
+        {
+            "user": {
+                "email": "test2@example.com",
+                "id": "52911143-f1d7-4cd3-b5de-760d9f397a16"
+            },
+            "event": {
+                "name": "Test Event2",
+                "heroImg": "8PHBJLacbwNU_Lab3akMy.png",
+                "dateTime": "2022-02-01 12:00:00",
+                "utcOffset": 360,
+                "address": "test2 address",
+                "city": "test2 city",
+                "state": "test2 state",
+                "eventDetails": "test2 event details",
+                "slug": "test-event-2"
+            },
+            "races": [
+                {
+                    "type": "Marathon",
+                    "distance": 42200,
+                    "dateTime": "2022-01-01 12:00:00"
+                },
+                {
+                    "type": "50k",
+                    "distance": 50000,
+                    "dateTime": "2022-01-01 12:00:00"
+                },
+                {
+                    "type": "Fun Run",
+                    "distance": 3000,
+                    "dateTime": "2022-01-01 12:00:00"
+                }
+            ]
+        }
+    ]
+}

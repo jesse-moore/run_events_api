@@ -1,11 +1,13 @@
 import { validate, ValidationError } from 'class-validator';
 import { getConnection } from './index';
 import { Event, User, Model, Race } from './entity';
+import { UpdateRaceInput } from '../graphql/generated/graphql-backend';
 import {
+    EventDetails,
     EventInput,
     EventInterface,
     ModelValidationErrors,
-    RaceInterface,
+    Race as RaceType,
     UserInterface,
 } from '../types';
 import { uuid } from 'aws-sdk/clients/customerprofiles';
@@ -27,37 +29,187 @@ export const createUser = async (
 
 export const createEvent = async (
     event: EventInput,
-    user: User | string
+    user: string
 ): Promise<Event | { errors: ModelValidationErrors }> => {
     await getConnection();
-    let newEvent: Event;
-    if (user instanceof User) {
-        newEvent = new Event({ ...event, user });
-    } else {
-        const eventUser = await getUserByID(user);
-        newEvent = new Event({ ...event, user: eventUser });
-    }
+    const eventUser = await getUserByID(user);
+    const newEvent = new Event({ ...event, user: eventUser });
+
     const errors = await validateModel(newEvent);
     if (errors) return { errors };
     const res = await newEvent.save();
     return res;
 };
 
+export const saveEventDetails = async (
+    eventDetails: EventDetails,
+    userId: string
+): Promise<Event | { errors: ModelValidationErrors | string }> => {
+    try {
+        await getConnection();
+        const { id } = eventDetails;
+        const event = await Event.findOne({
+            where: { id, user: userId },
+            relations: ['user'],
+        });
+        if (!event) return { errors: `Event ${id} not found` };
+        event.address = eventDetails.address;
+        event.name = eventDetails.name;
+        event.city = eventDetails.city;
+        event.state = eventDetails.state;
+        event.dateTime = new Date(eventDetails.dateTime);
+        const errors = await validateModel(event);
+        if (errors) return { errors };
+        const res = await event.save();
+        return res;
+    } catch (error) {
+        return error.message;
+    }
+};
+
+export const saveHeroImg = async (
+    heroImg: string,
+    id: string,
+    userId: string
+): Promise<Event | { errors: ModelValidationErrors | string }> => {
+    try {
+        await getConnection();
+        const event = await Event.findOne({
+            where: { id, user: userId },
+            relations: ['user'],
+        });
+        if (!event) return { errors: `Event ${id} not found` };
+        event.heroImg = heroImg;
+        const errors = await validateModel(event);
+        if (errors) return { errors };
+        const res = await event.save();
+        return res;
+    } catch (error) {
+        return error.message;
+    }
+};
+
+export const saveEventDescription = async (
+    eventDescription: string,
+    id: string,
+    userId: string
+): Promise<Event | { errors: ModelValidationErrors | string }> => {
+    try {
+        await getConnection();
+        const event = await Event.findOne({
+            where: { id, user: userId },
+            relations: ['user'],
+        });
+        if (!event) return { errors: `Event ${id} not found` };
+        event.eventDetails = eventDescription;
+        const errors = await validateModel(event);
+        if (errors) return { errors };
+        const res = await event.save();
+        return res;
+    } catch (error) {
+        return error.message;
+    }
+};
+
 export const createRace = async (
-    race: RaceInterface
+    race: RaceType,
+    userId: string,
+    eventId: string
 ): Promise<Race | { errors: ModelValidationErrors }> => {
     await getConnection();
-    const newEvent = new Race(race);
-    const errors = await validateModel(newEvent);
+    const newRace = new Race({ ...race, user: userId, event: eventId });
+    const errors = await validateModel(newRace);
     if (errors) return { errors };
-    const res = await newEvent.save();
+    const res = await newRace.save();
     return res;
+};
+
+export const updateRace = async (
+    raceUpdates: UpdateRaceInput,
+    userId: string,
+    raceId: string
+): Promise<Race | { errors: ModelValidationErrors }> => {
+    await getConnection();
+    const { distance, name, route } = raceUpdates;
+    const race = await Race.findOne({
+        where: { id: raceId, user: userId },
+        relations: ['user', 'route', 'event'],
+    });
+    if (!race) throw new Error(`Race ${raceId} not found`);
+    if (distance) race.distance = distance;
+    if (name) race.name = name;
+    if (route && route.points) race.route.points = route.points;
+    if (route && route.route) race.route.route = route.route;
+    if (route && route.routeEndMarker)
+        race.route.routeEndMarker = route.routeEndMarker;
+    if (route && route.routeStartMarker)
+        race.route.routeStartMarker = route.routeStartMarker;
+
+    const errors = await validateModel(race);
+    if (errors) return { errors };
+    const res = await race.save();
+    return res;
+};
+
+export const deleteRace = async (
+    userId: string,
+    raceId: string
+): Promise<void> => {
+    await getConnection();
+    const race = await Race.findOne({
+        where: { id: raceId, user: userId },
+        relations: ['user', 'route'],
+    });
+    await race?.remove();
+    await race?.route.remove();
+};
+
+export const deleteEvent = async (
+    userId: string,
+    eventId: string
+): Promise<void> => {
+    await getConnection();
+    const event = await Event.findOne({
+        where: { id: eventId, user: userId },
+        relations: ['user', 'races'],
+    });
+    if (!event) return;
+
+    for await (const race of event.races) {
+        await race.remove();
+        await race.route.remove();
+    }
+    await event.remove();
 };
 
 export const getEvents = async (): Promise<Event[]> => {
     await getConnection();
     const events = Event.find();
     return events;
+};
+
+export const getEventByID = async (
+    id: string,
+    userId: string
+): Promise<Event | undefined> => {
+    await getConnection();
+    const event = Event.findOne({
+        where: { id, user: userId },
+        relations: ['races', 'user'],
+    });
+    return event;
+};
+
+export const getRaceByID = async (
+    id: string,
+    userId: string
+): Promise<Race | undefined> => {
+    await getConnection();
+    const race = Race.findOne({
+        where: { id, user: userId },
+        relations: ['user', 'event', 'route'],
+    });
+    return race;
 };
 
 export const getUsersEvents = async (id: uuid): Promise<Event[]> => {

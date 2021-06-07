@@ -17,3 +17,4 @@ export { Model } from './Model';
 export { User } from './User';
 export { Event } from './Event';
 export { Race } from './Race';
+export { Route } from './Route';

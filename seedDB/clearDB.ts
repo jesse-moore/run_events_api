@@ -1,9 +1,10 @@
 require('dotenv').config({ path: '.env.local' });
 import { Connection } from 'typeorm';
 import { getConnection } from '../src/mysql';
-import { Event, User, Race } from '../src/mysql/entity';
+import { Event, User, Race, Route } from '../src/mysql/entity';
 
 export const clearDB = async (connection: Connection) => {
+    await connection.getRepository(Route).delete({});
     await connection.getRepository(Race).delete({});
     await connection.getRepository(Event).delete({});
     await connection.getRepository(User).delete({});

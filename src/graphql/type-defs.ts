@@ -1,8 +1,11 @@
 import { gql } from 'apollo-server';
+const { FeatureCollectionObject, FeatureObject } = require('graphql-geojson');
 
 export const typeDefs = gql`
     scalar Upload
     scalar Date
+    scalar FeatureCollectionObject
+    scalar FeatureObject
 
     type User {
         id: ID
@@ -10,52 +13,95 @@ export const typeDefs = gql`
     }
 
     type Event {
-        id: ID
-        name: String
-        heroImg: String
-        dateTime: Date
-        address: String
-        city: String
-        state: String
-        eventDetails: String
-        races: [Race]
+        id: ID!
+        name: String!
+        heroImg: String!
+        dateTime: Date!
+        address: String!
+        city: String!
+        state: String!
+        eventDetails: String!
+        races: [Race!]!
     }
 
     input EventInput {
         name: String!
         heroImg: Upload
         dateTime: String!
-        utcOffset: Int
         address: String
         city: String
         state: String
         eventDetails: String
     }
 
+    input EventDetailsInput {
+        id: String!
+        name: String!
+        dateTime: Date!
+        address: String!
+        city: String!
+        state: String!
+    }
+
     type Race {
-        type: String
-        dateTime: Date
-        distance: Int
-        route: String
+        id: String!
+        name: String!
+        distance: Int!
+        route: Route!
+        event: Event!
+    }
+
+    type Route {
+        points: FeatureCollectionObject!
+        route: FeatureCollectionObject!
+        routeStartMarker: FeatureObject
+        routeEndMarker: FeatureObject
+    }
+
+    input RouteInput {
+        points: FeatureCollectionObject!
+        route: FeatureCollectionObject!
+        routeStartMarker: FeatureObject
+        routeEndMarker: FeatureObject
     }
 
     input RaceInput {
-        type: String
-        dateTime: Date
+        name: String!
+        distance: Int!
+        route: RouteInput!
+    }
+
+    input UpdateRouteInput {
+        points: FeatureCollectionObject
+        route: FeatureCollectionObject
+        routeStartMarker: FeatureObject
+        routeEndMarker: FeatureObject
+    }
+
+    input UpdateRaceInput {
+        name: String
         distance: Int
-        route: String
+        route: UpdateRouteInput
     }
 
     type Query {
         events: [Event]!
         eventBySlug(slug: String!): Event
         userEvents: [Event]!
+        userEventByID(id: String!): Event
+        userRaceByID(id: String!): Race
     }
 
     type Mutation {
         createUser: User
         createEvent(event: EventInput!): Event
-        createRace(eventId: String, race: RaceInput): Race
+        createRace(eventId: String!, race: RaceInput!): Race
+        deleteEvent(eventId: String!): String
+        deleteRace(raceId: String!): String
+        updateRace(raceId: String!, raceUpdates: UpdateRaceInput!): Race
         fileUpload(file: Upload!): String
+        saveHeroImg(file: Upload!, id: String!): Event
+        saveEventDetails(eventDetails: EventDetailsInput!): Event
+        saveEventDescription(eventDescription: String!, id: String!): Event
     }
 `;
