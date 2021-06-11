@@ -3,10 +3,12 @@ import {
     AuthenticationError,
     ApolloError,
 } from 'apollo-server-errors';
+import isValidDomain from 'is-valid-domain';
 import { GraphQLUpload } from 'graphql-upload';
 import { QueryResolvers, MutationResolvers } from './generated/graphql-backend';
 import { uploadImage } from '../aws-s3';
 import {
+	checkSubDomain,
     createEvent,
     createRace,
     createUser,
@@ -69,6 +71,9 @@ const Query: QueryResolvers = {
         if (!event) return null;
         return event;
     },
+    checkSubdomain: async (_parent, args, _context, _info) => {
+        return await checkSubDomain(args.subdomain);
+    },
 };
 
 const Mutation: MutationResolvers = {
@@ -99,11 +104,18 @@ const Mutation: MutationResolvers = {
         const { userName } = user;
         const { event } = args;
         let imageURL = '';
+		
         try {
             if (event.heroImg) {
                 const imageRes = await uploadImage(event.heroImg);
                 if (!imageRes) throw new Error();
                 imageURL = imageRes;
+            }
+            const isValidSubdomain = isValidDomain(`${event.slug}.site`, {
+                subdomain: false,
+            });
+            if (!isValidSubdomain) {
+                throw new UserInputError(`Invalid subdomain ${event.slug}`);
             }
             const newEvent = {
                 ...event,
@@ -115,7 +127,9 @@ const Mutation: MutationResolvers = {
                 const { user, createdAt, updatedAt, ...rest } = res;
                 return rest;
             }
-        } catch (error) {}
+        } catch (error) {
+            throw new UserInputError('Error creating event');
+        }
         throw new UserInputError('Error creating event');
     },
     createRace: async (

@@ -10,6 +10,7 @@ export interface EventInput {
     city?: string | null;
     state?: string | null;
     eventDetails?: string | null;
+    slug?: string;
 }
 
 export interface EventInterface {
@@ -29,6 +30,7 @@ export interface EventDetails {
     city: string;
     state: string;
     id: string;
+	slug: string;
 }
 
 export interface Race extends RaceDetails {

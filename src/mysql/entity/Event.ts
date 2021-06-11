@@ -7,7 +7,7 @@ import {
     Min,
     Length,
     IsDefined,
-	IsOptional,
+    IsOptional,
 } from 'class-validator';
 import { Race, User } from './';
 import { Model } from './Model';
@@ -28,12 +28,6 @@ export class Event extends Model {
     @IsDate()
     @Column({ type: 'datetime' })
     dateTime!: Date;
-
-    // @Max(720)
-    // @Min(-720)
-    // @IsInt()
-    // @Column({ type: 'smallint', default: 0 })
-    // utcOffset!: number;
 
     @IsString()
     @Length(0, 50)
@@ -58,7 +52,7 @@ export class Event extends Model {
     @IsString()
     @Length(0, 100)
     @IsOptional()
-    @Column({ type: 'varchar', length: '100', nullable: true })
+    @Column({ type: 'varchar', length: '100', nullable: true, unique: true })
     slug!: string;
 
     @IsDefined()

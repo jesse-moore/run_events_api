@@ -48,7 +48,7 @@ describe('Event Model', function () {
     });
     it('should have correct dateTime field', async function () {
         expect(newEvent.dateTime).to.be.instanceOf(Date);
-        const date = newEvent.dateTime.toUTCString();
+        const date = newEvent.dateTime.toUTCString(); 
         expect(date).to.equal('Sat, 01 Jan 2022 18:00:00 GMT');
         expect(errors.dateTime).to.be.undefined;
     });

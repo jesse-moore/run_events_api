@@ -21,10 +21,12 @@ export const typeDefs = gql`
         city: String!
         state: String!
         eventDetails: String!
+        slug: String!
         races: [Race!]!
     }
 
     input EventInput {
+        slug: String!
         name: String!
         heroImg: Upload
         dateTime: String!
@@ -41,6 +43,7 @@ export const typeDefs = gql`
         address: String!
         city: String!
         state: String!
+        slug: String!
     }
 
     type Race {
@@ -90,6 +93,7 @@ export const typeDefs = gql`
         userEvents: [Event]!
         userEventByID(id: String!): Event
         userRaceByID(id: String!): Race
+        checkSubdomain(subdomain: String!): Boolean!
     }
 
     type Mutation {

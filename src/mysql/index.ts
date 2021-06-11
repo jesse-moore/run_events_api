@@ -12,7 +12,7 @@ const options = {
     database: config.DB_DATABASE,
     entities: [User, Event, Race, Route],
     synchronize: true,
-    logging: ['error'],
+    // logging: ['error'],
 };
 
 function entitiesChanged(prevEntities: any[], newEntities: any[]): boolean {

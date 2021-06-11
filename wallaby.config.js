@@ -23,7 +23,6 @@ module.exports = function (wallaby) {
             console.log('Setup');
             console.log('Current worker id: ' + wallaby.workerId);
             console.log('Current session id: ' + wallaby.sessionId);
-            console.log(process.env.DB_DATABASE);
         },
         compilers: {
             '**/*.ts': wallaby.compilers.typeScript({

@@ -41,6 +41,13 @@ export const createEvent = async (
     return res;
 };
 
+export const checkSubDomain = async (subDomain: string) => {
+    await getConnection();
+    const event = await Event.findOne({ where: { slug: subDomain } });
+    if (event) return true;
+    return false;
+};
+
 export const saveEventDetails = async (
     eventDetails: EventDetails,
     userId: string
@@ -57,6 +64,7 @@ export const saveEventDetails = async (
         event.name = eventDetails.name;
         event.city = eventDetails.city;
         event.state = eventDetails.state;
+        event.slug = eventDetails.slug;
         event.dateTime = new Date(eventDetails.dateTime);
         const errors = await validateModel(event);
         if (errors) return { errors };
@@ -184,7 +192,9 @@ export const deleteEvent = async (
 
 export const getEvents = async (): Promise<Event[]> => {
     await getConnection();
-    const events = Event.find();
+    const events = Event.find({
+        relations: ['races'],
+    });
     return events;
 };
 

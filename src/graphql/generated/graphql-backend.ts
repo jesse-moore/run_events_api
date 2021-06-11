@@ -29,6 +29,7 @@ export type Event = {
   city: Scalars['String'];
   state: Scalars['String'];
   eventDetails: Scalars['String'];
+  slug: Scalars['String'];
   races: Array<Race>;
 };
 
@@ -39,9 +40,11 @@ export type EventDetailsInput = {
   address: Scalars['String'];
   city: Scalars['String'];
   state: Scalars['String'];
+  slug: Scalars['String'];
 };
 
 export type EventInput = {
+  slug: Scalars['String'];
   name: Scalars['String'];
   heroImg?: Maybe<Scalars['Upload']>;
   dateTime: Scalars['String'];
@@ -123,6 +126,7 @@ export type Query = {
   userEvents: Array<Maybe<Event>>;
   userEventByID?: Maybe<Event>;
   userRaceByID?: Maybe<Race>;
+  checkSubdomain: Scalars['Boolean'];
 };
 
 
@@ -138,6 +142,11 @@ export type QueryUserEventByIdArgs = {
 
 export type QueryUserRaceByIdArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryCheckSubdomainArgs = {
+  subdomain: Scalars['String'];
 };
 
 export type Race = {
@@ -278,6 +287,7 @@ export type ResolversTypes = {
   FeatureObject: ResolverTypeWrapper<Scalars['FeatureObject']>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Race: ResolverTypeWrapper<Race>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   RaceInput: RaceInput;
@@ -287,7 +297,6 @@ export type ResolversTypes = {
   UpdateRouteInput: UpdateRouteInput;
   Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<User>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -302,6 +311,7 @@ export type ResolversParentTypes = {
   FeatureObject: Scalars['FeatureObject'];
   Mutation: {};
   Query: {};
+  Boolean: Scalars['Boolean'];
   Race: Race;
   Int: Scalars['Int'];
   RaceInput: RaceInput;
@@ -311,7 +321,6 @@ export type ResolversParentTypes = {
   UpdateRouteInput: UpdateRouteInput;
   Upload: Scalars['Upload'];
   User: User;
-  Boolean: Scalars['Boolean'];
 };
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
@@ -327,6 +336,7 @@ export type EventResolvers<ContextType = any, ParentType extends ResolversParent
   city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   state?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   eventDetails?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   races?: Resolver<Array<ResolversTypes['Race']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -358,6 +368,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   userEvents?: Resolver<Array<Maybe<ResolversTypes['Event']>>, ParentType, ContextType>;
   userEventByID?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<QueryUserEventByIdArgs, 'id'>>;
   userRaceByID?: Resolver<Maybe<ResolversTypes['Race']>, ParentType, ContextType, RequireFields<QueryUserRaceByIdArgs, 'id'>>;
+  checkSubdomain?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryCheckSubdomainArgs, 'subdomain'>>;
 };
 
 export type RaceResolvers<ContextType = any, ParentType extends ResolversParentTypes['Race'] = ResolversParentTypes['Race']> = {
